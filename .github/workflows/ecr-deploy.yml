@@ -36,7 +36,7 @@ jobs:
           IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           # Especifique o caminho do Dockerfile se necessário
-          docker build -t $IMAGE_URI -f Dockerfile .
+          docker build -t $IMAGE_URI -f ../Dockerfile .
 
           # Fazer o push da imagem para o ECR
           docker push $IMAGE_URI
