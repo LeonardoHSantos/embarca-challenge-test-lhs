@@ -3,7 +3,7 @@ name: Build and Push Docker Image to ECR
 on:
   push:
     branches:
-      - main  # Rodar apenas no branch main (modifique se necessário)
+      - main  # Modifique se necessário
 
 jobs:
   build:
@@ -35,8 +35,8 @@ jobs:
           ECR_REPOSITORY=new-custom-lambda
           IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-          # Fazer o build da imagem
-          docker build -t $IMAGE_URI .
+          # Especifique o caminho do Dockerfile se necessário
+          docker build -t $IMAGE_URI -f Dockerfile .
 
           # Fazer o push da imagem para o ECR
           docker push $IMAGE_URI
