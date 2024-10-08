@@ -3,43 +3,25 @@ name: Build and Push Docker Image to ECR
 on:
   push:
     branches:
-      - main  # Modifique se necessário
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the repository
+      - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2  # Defina a região corretamente
 
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          region: us-east-2
 
-      - name: Build and push Docker image
+      - name: Build and push Docker Image
         run: |
-          # Definir as variáveis
-          IMAGE_TAG=latest
-          ECR_REGISTRY=277707136485.dkr.ecr.us-east-2.amazonaws.com
-          ECR_REPOSITORY=new-custom-lambda
-          IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-          # Especifique o caminho do Dockerfile se necessário
-          docker build -t $IMAGE_URI -f ../docker-lambda-image-custom/Dockerfile .
-
-          # Fazer o push da imagem para o ECR
-          docker push $IMAGE_URI
-
-      - name: Output the Image URI
-        run: echo "Pushed image to $IMAGE_URI"
+          ls -la
+          docker build -t new-custom-lambda ./docker-lambda-image-custom
+          docker tag new-custom-lambda:latest 277707136485.dkr.ecr.us-east-2.amazonaws.com/new-custom-lambda:latest
+          docker push 277707136485.dkr.ecr.us-east-2.amazonaws.com/new-custom-lambda:latest
