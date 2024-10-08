@@ -1,0 +1,38 @@
+name: Build and Push Docker Image to ECR
+
+on:
+  push:
+    branches:
+      - main  # Rodar apenas no branch main (modifique se necessário)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push Docker image
+        run: |
+          # Definir as variáveis
+          IMAGE_TAG=latest
+          ECR_REGISTRY=277707136485.dkr.ecr.us-east-2.amazonaws.com
+          ECR_REPOSITORY=new-custom-lambda
+          IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          # Fazer o build da imagem
+          docker build -t $IMAGE_URI .
+
+          # Fazer o push da imagem para o ECR
+          docker push $IMAGE_URI
+
+      - name: Output the Image URI
+        run: echo "Pushed image to $IMAGE_URI"
