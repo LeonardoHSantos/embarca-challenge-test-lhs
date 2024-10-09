@@ -12,6 +12,7 @@ As actions do Github será acionado apenas se houver atualizações no diretóri
 - *Lambda 1*: recebe a url do arquivo .csv e salva no bucket S3
 - *Lambda 2*: obtem o arquivo salvo no S3, realiza o tratamento do .csv, calcula as métricas e aciona a função para salvar o registro no MySQL (RDS)
 - *Final da Pipeline*: a função **Lambda 2** aciona **save_metrics_to_db** que recebe as **métricas** (json) e o **road_name** ("nome da estrada") e, realiza o UPDATE/CREATE dos registros no banco de dados
+- *resposta HTTP*: após finalizar o pipeline a saída esperada é statusCode 200 e o body informando sucesso para Lambda 2 e fluxo do database. 
 
 **Observações**:<br>
 Customizei para este projeto as seguintes configurações da função Lambda:
@@ -166,8 +167,19 @@ Após um **push** para a branch `main`, o pipeline do GitHub Actions será acion
 <pre>
 <code>
 {
-  "statusCode": 200,
-  "body": "{\"message\": \"success lambda 2\", \"metrics\": {\"total_geral\": 1269, \"automovel\": 731, \"bicicleta\": 1, \"caminhao\": 335, \"moto\": 194, \"onibus\": 8}, \"db_process\": \"{\"status\": \"success\", \"message\": \"Metrics saved successfully\"}\"}"
+    "message": "success lambda 2",
+    "metrics": {
+        "total_geral": 1269,
+        "automovel": 731,
+        "bicicleta": 1,
+        "caminhao": 335,
+        "moto": 194,
+        "onibus": 8
+    },
+    "db_process": {
+        "status": "success",
+        "message": "Metrics saved successfully"
+    }
 }
 </code>
 </pre>
