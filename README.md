@@ -4,7 +4,7 @@ Este projeto envolve a criação de uma arquitetura DevOps utilizando tecnologia
 
 **Clone este repositório na sua máquina e siga as instruções a seguir**.
 
-As actions do Github será acionado apenas se houver atualizações no diretório **docker-lambda-image-custom**.
+A **GitHub Action** será disparada **somente quando houver modificações no diretório "docker-lambda-image-custom"**, garantindo que os serviços da AWS sejam atualizados apenas quando houver alterações relevantes.
 
 **Resumo do projeto**:
 - **Função Lambda Gatilho**: docker-lambda-image-custom/app/**lambda_function.py**
@@ -185,7 +185,7 @@ Após um **push** para a branch `main`, o pipeline do GitHub Actions será acion
 </pre>
 
 
-## Etapa 7 - Atualização do Bando de Dados MySQL
+## Etapa 7 - Atualização do Banco de Dados MySQL
 
 1. Após a conclusão do build, vá para a função Lambda.
 2. Atualize a função com a nova imagem Docker gerada.
