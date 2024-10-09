@@ -1,38 +1,60 @@
+# Nome do workflow, que será exibido no GitHub Actions.
 name: Build and Push Docker Image to ECR
 
+# Definição do gatilho para executar o workflow.
+# Neste caso, o workflow é acionado ao fazer push no branch "main".
 on:
   push:
     branches:
-      - main  # Modifique se necessário
+      - main  # Modifique conforme necessário para o branch correto.
+    
+    # O workflow será acionado apenas se arquivos no diretório 'docker-lambda-image-custom' forem modificados.
+    paths:
+      - 'docker-lambda-image-custom/**'
 
+# Definição do job de build.
+# O job "build" será executado em um runner com Ubuntu.
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # O GitHub Actions usará uma máquina virtual Ubuntu.
 
     steps:
+      # Primeiro passo: fazer o checkout do repositório (baixar o código para o ambiente de execução).
       - name: Checkout the repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3  # Usa a action oficial para obter o código da branch atual.
 
+      # Configura o Docker Buildx, uma extensão do Docker que oferece novos recursos de build, como builds multiplataforma.
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3  # Usa a action oficial do Docker para configurar o Buildx.
 
+      # Configura as credenciais da AWS para que o GitHub Actions tenha permissão para interagir com a AWS (ECR, S3, etc.).
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-2  # Defina a região corretamente
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Obtém a chave de acesso AWS das secrets do repositório.
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # Obtém a chave secreta AWS das secrets.
+          aws-region: us-east-2  # Define a região da AWS onde os recursos estão hospedados (modifique conforme necessário).
 
+      # Realiza o login no Amazon Elastic Container Registry (ECR) para autenticação.
       - name: Log in to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v1  # Usa a action da AWS para fazer login no ECR.
 
+      # Constrói e envia a imagem Docker para o Amazon ECR.
       - name: Build and push Docker image
         run: |
+          # Lista os arquivos para garantir que o diretório está correto.
           ls -la
+          
+          # Realiza o build da imagem Docker a partir do diretório 'docker-lambda-image-custom'.
           docker build -t new-custom-lambda ./docker-lambda-image-custom
+          
+          # Marca a imagem localmente com o nome do repositório no ECR.
           docker tag new-custom-lambda:latest 277707136485.dkr.ecr.us-east-2.amazonaws.com/new-custom-lambda:latest
+          
+          # Envia (push) a imagem marcada para o repositório do ECR.
           docker push 277707136485.dkr.ecr.us-east-2.amazonaws.com/new-custom-lambda:latest
 
+      # Exibe o URI da imagem Docker que foi enviada ao ECR.
       - name: Output the Image URI
-        run: echo "Pushed image to $IMAGE_URI"
+        run: echo "Pushed image to $IMAGE_URI"  # Exibe a mensagem de sucesso com o URI da imagem.
