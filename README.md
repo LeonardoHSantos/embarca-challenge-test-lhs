@@ -2,6 +2,15 @@
 
 Este projeto envolve a criação de uma arquitetura DevOps utilizando tecnologias como **Python**, **Docker**, **AWS Lambda**, **ECR**, **S3** e **RDS (MySQL)**.
 
+**Clone este repositório na sua máquina e siga as instruções a seguir**
+
+**Observação**
+Utilizei para este projeto as configurações básicas da função Lambda:
+- **CPU**: 300MB
+- **Armazenamento temporário**: 600MB
+- **Tempo Limite**: 0min e 25seg
+- Aumentar esses valores se necessário para processamento de arquivos maiores.
+
 ## Arquivos Principais de Configuração:
 
 ### Docker:
@@ -11,6 +20,48 @@ Este projeto envolve a criação de uma arquitetura DevOps utilizando tecnologia
 ### GitHub Actions:
 - **Pipeline CI/CD**: Arquivo `.github/workflows/ecr-deploy.yml` contém o pipeline que faz o build e deploy da imagem Docker para o Amazon ECR.
   - Comentários detalhados explicam cada parte da configuração.
+
+### Banco de Dados MySQL:
+- **Tabela road_incidents**: Arquivo `road_incidentes.sql` contém exemplo de tabela a ser utilizada neste projeto.
+
+### Variáveis de ambiente (Função Lambda):
+- na função Lambda vá em **Configuração**
+- selecione a opção **variáveis de ambiente**
+- adicione os seguintes valores de ambiente:
+<table>
+    <thead>
+    <tr>
+        <th>Chave</th>
+        <th>Valor</th>
+    <tr>
+    </thead>
+    <tr>
+        <td>bucket_name</td>
+        <td>****nome_do_bucket_AWS_S3****</td>
+    </tr>
+    <tr>
+        <td>database</td>
+        <td>****nome_do_banco_de_dados****</td>
+    </tr>
+    <tr>
+        <td>host</td>
+        <td>****host_do_banco_de_dados****</td>
+    </tr>
+    <tr>
+        <td>password</td>
+        <td>****senha_do_bando_de_dados****</td>
+    </tr>
+    <tr>
+        <td>port</td>
+        <td>3306</td>
+    </tr>
+    <tr>
+        <td>user</td>
+        <td>root</td>
+    </tr>
+    <tbody>
+    </tbody>
+</table>
 
 ## Pré-requisitos
 
@@ -86,3 +137,40 @@ Após um **push** para a branch `main`, o pipeline do GitHub Actions será acion
 ### Exemplo visual de atualização da função Lambda com a nova imagem:
 
 ![Atualizar função Lambda](img/image_build_action.png)
+
+## Etapa 6 - Consumindo Função Lambda
+
+1) método POST para URL da função Lambda<br>
+2) adicione no headers a chave "Content-Type" com o valor "application/json"<br>
+3) adicione no body da requisição o modelo JSON abaixo (deve enviar como string):
+
+<p>input:</p>
+<pre>
+<code>
+{
+  "csv_url": "https://dados.antt.gov.br/dataset/ef0171a8-f0df-4817-a4ed-b4ff94d87194/resource/aa60ce3a-033a-4864-81dc-ae32bea866e5/download/demostrativo_acidentes_viaaraucaria.csv"
+}
+</code>
+</pre>
+
+<p>output esperado:</p>
+<pre>
+<code>
+{
+  "statusCode": 200,
+  "body": "{\"message\": \"success lambda 2\", \"metrics\": {\"total_geral\": 1269, \"automovel\": 731, \"bicicleta\": 1, \"caminhao\": 335, \"moto\": 194, \"onibus\": 8}, \"db_process\": \"{\"status\": \"success\", \"message\": \"Metrics saved successfully\"}\"}"
+}
+</code>
+</pre>
+
+
+## Etapa 7 - Atualização do Bando de Dados MySQL
+
+1. Após a conclusão do build, vá para a função Lambda.
+2. Atualize a função com a nova imagem Docker gerada.
+3. **Importante**: Certifique-se de que a tabela **road_incidents** esteja criada corretamente no banco de dados.
+4. Tabela de exemplo no arquivo **road_incidentes.sql**
+
+### Exemplo visual dos registros inseridos no banco MySQL:
+
+![Atualizar função Lambda](img/image_update_table_mysql.png)

@@ -151,11 +151,11 @@ def save_metrics_to_db(metrics, road_name):
             connection.commit()
 
         # Retornar um JSON de sucesso
-        return json.dumps({"status": "success", "message": "Metrics saved successfully"})
+        return {"status": "success", "message": "Metrics saved successfully"}
 
     except pymysql.MySQLError as e:
         # Tratamento de erro com retorno de JSON detalhando a falha
-        return json.dumps({"status": "error", "message": str(e)})
+        return {"status": "error", "message": str(e)}
 
     finally:
         if connection:
